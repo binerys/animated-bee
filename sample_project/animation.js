@@ -1,3 +1,5 @@
+
+
 // *******************************************************
 // CS 174a Graphics Example Code
 // animation.js - The main file and program start point.  The class definition here describes how to display an Animation and how it will react to key and mouse input.  Right now it has 
@@ -11,11 +13,16 @@ var canvas, canvas_size, gl = null, g_addrs,
 		var gouraud = false, color_normals = false, solid = false;
 function CURRENT_BASIS_IS_WORTH_SHOWING(self, model_transform) { self.m_axis.draw( self.basis_id++, self.graphicsState, model_transform, new Material( vec4( .8,.3,.8,1 ), .5, 1, 1, 40, "" ) ); }
 
-
+// *******************************************************
+// 	T E X T U R E S
 // *******************************************************
 // IMPORTANT -- In the line below, add the filenames of any new images you want to include for textures!
 
 var texture_filenames_to_load = [ "stars.png", "text.png", "earth.gif" ];
+var purplePlastic = new Material( vec4( .9,.5,.9,1 ), .2, .5, .8, 40 ), // Omit the final (string) parameter if you want no texture
+greyPlastic = new Material( vec4( .5,.5,.5,1 ), .2, .8, .5, 20 ),
+earth = new Material( vec4( .5,.5,.5,1 ), .5, 1, .5, 40, "earth.gif" ),
+stars = new Material( vec4( .5,.5,.5,1 ), .5, 1, 1, 40, "stars.png" );
 
 // *******************************************************	
 // When the web page's window loads it creates an "Animation" object.  It registers itself as a displayable object to our other class "GL_Context" -- which OpenGL is told to call upon every time a
@@ -117,42 +124,33 @@ Animation.prototype.display = function(time)
 		
 		// Materials: Declare new ones as needed in every function.
 		// 1st parameter:  Color (4 floats in RGBA format), 2nd: Ambient light, 3rd: Diffuse reflectivity, 4th: Specular reflectivity, 5th: Smoothness exponent, 6th: Texture image.
-		var purplePlastic = new Material( vec4( .9,.5,.9,1 ), .2, .5, .8, 40 ), // Omit the final (string) parameter if you want no texture
-			greyPlastic = new Material( vec4( .5,.5,.5,1 ), .2, .8, .5, 20 ),
-			earth = new Material( vec4( .5,.5,.5,1 ), .5, 1, .5, 40, "earth.gif" ),
-			stars = new Material( vec4( .5,.5,.5,1 ), .5, 1, 1, 40, "stars.png" );
+		
 			
 		/**********************************
 		Start coding here!!!!
 		**********************************/
-		
-		
+	
+		/**********************************
+		STATIC GROUND
+		**********************************/		
+		var stack = [];
+		stack.push(model_transform); 
+		model_transform = this.draw_ground(model_transform);
+		model_transform = stack.pop();
+		CURRENT_BASIS_IS_WORTH_SHOWING(this, model_transform);
 
-		model_transform = mult( model_transform, translation( 0, 10, -15) );		// Position the next shape by post-multiplying another matrix onto the current matrix product
-		this.m_cube.draw( this.graphicsState, model_transform, purplePlastic );			// Draw a cube, passing in the current matrices
-		CURRENT_BASIS_IS_WORTH_SHOWING(this, model_transform);							// How to draw a set of axes, conditionally displayed - cycle through by pressing p and m
-		
-		model_transform = mult( model_transform, translation( 0, -2, 0 ) );		
-		this.m_fan.draw( this.graphicsState, model_transform, greyPlastic );			// Cone
-		CURRENT_BASIS_IS_WORTH_SHOWING(this, model_transform);
-		
-		model_transform = mult( model_transform, translation( 0, -4, 0 ) );
-		this.m_cylinder.draw( this.graphicsState, model_transform, greyPlastic );		// Tube
-		CURRENT_BASIS_IS_WORTH_SHOWING(this, model_transform);
-		
-		
-		model_transform = mult( model_transform, translation( 0, -3, 0 ) );											// Example Translate
-		model_transform = mult( model_transform, rotation( this.graphicsState.animation_time/20, 0, 1, 0 ) );			// Example Rotate. 1st parameter is scalar for angle, last three are axis of rotation.
-		model_transform = mult( model_transform, scale( 5, 1, 5 ) );												// Example Scale
-		this.m_sphere.draw( this.graphicsState, model_transform, earth );				// Sphere
-		
-		model_transform = mult( model_transform, translation( 0, -2, 0 ) );
-		this.m_strip.draw( this.graphicsState, model_transform, stars );				// Rectangle
-		CURRENT_BASIS_IS_WORTH_SHOWING(this, model_transform);
 	}	
 
 
+Animation.prototype.draw_ground = function( model_transform )
+{
+	model_transform = mult( model_transform, translation( 0, -7, 0 ) );
+	model_transform = mult( model_transform, scale( 200, 200, 200) ); // Expand the ground
+	model_transform = mult( model_transform, rotation(90, 0, 0, 1) ); // Rotate along z-axis
+	this.m_strip.draw( this.graphicsState, model_transform, earth );				// Rectangle
 
+	return model_transform;
+}
 Animation.prototype.update_strings = function( debug_screen_strings )		// Strings this particular class contributes to the UI
 {
 	debug_screen_strings.string_map["time"] = "Animation Time: " + this.graphicsState.animation_time/1000 + "s";
