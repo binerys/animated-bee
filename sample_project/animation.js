@@ -18,9 +18,12 @@ function CURRENT_BASIS_IS_WORTH_SHOWING(self, model_transform) { self.m_axis.dra
 // *******************************************************
 // IMPORTANT -- In the line below, add the filenames of any new images you want to include for textures!
 
-var texture_filenames_to_load = [ "stars.png", "text.png", "earth.gif" ];
+var texture_filenames_to_load = [ "stars.png", "text.png", "earth.gif", "stem.png", "dandelion.jpg", "grass.jpg"];
 var purplePlastic = new Material( vec4( .9,.5,.9,1 ), .2, .5, .8, 40 ), // Omit the final (string) parameter if you want no texture
 greyPlastic = new Material( vec4( .5,.5,.5,1 ), .2, .8, .5, 20 ),
+stem = new Material( vec4( .5,.5,.5,1 ), .5, 1, 1, 40, "stem.png" ),
+dandelion = new Material( vec4( .5,.5,.5,1 ), .5, 1, 1, 40, "dandelion.jpg" ),
+grass = new Material( vec4( .5,.5,.5,1 ), .5, 1, 1, 40, "grass.jpg" ),
 earth = new Material( vec4( .5,.5,.5,1 ), .5, 1, .5, 40, "earth.gif" ),
 stars = new Material( vec4( .5,.5,.5,1 ), .5, 1, 1, 40, "stars.png" );
 
@@ -137,6 +140,27 @@ Animation.prototype.display = function(time)
 		stack.push(model_transform); 
 		model_transform = this.draw_ground(model_transform);
 		model_transform = stack.pop();
+
+		/**********************************
+		FLOWER
+		**********************************/	
+		stack.push(model_transform); 
+		model_transform = mult( model_transform, translation( 0, -6.8, 0 ) ); // Bring bottom stem down to ground
+		var i;
+		for(i=0; i<8; i++)
+		{
+			model_transform = this.draw_stem(model_transform);
+		}
+		model_transform = mult( model_transform, translation( 0, 2.0, 0 ) );
+		model_transform = mult( model_transform, scale( 2, 2, 2) );
+		this.m_sphere.draw(this.graphicsState,model_transform,dandelion);
+		model_transform = stack.pop();		
+
+		/**********************************
+		BEE
+		**********************************/	
+		stack.push(model_transform); 
+
 		CURRENT_BASIS_IS_WORTH_SHOWING(this, model_transform);
 
 	}	
@@ -147,7 +171,20 @@ Animation.prototype.draw_ground = function( model_transform )
 	model_transform = mult( model_transform, translation( 0, -7, 0 ) );
 	model_transform = mult( model_transform, scale( 200, 200, 200) ); // Expand the ground
 	model_transform = mult( model_transform, rotation(90, 0, 0, 1) ); // Rotate along z-axis
-	this.m_strip.draw( this.graphicsState, model_transform, earth );				// Rectangle
+	this.m_strip.draw( this.graphicsState, model_transform, grass );				// Rectangle
+
+	return model_transform;
+}
+Animation.prototype.draw_stem = function( model_transform )
+{
+	var stem_stack = [];
+	model_transform = mult( model_transform, rotation(4*Math.sin(this.graphicsState.animation_time/2000), 0, 0, 1) );
+	model_transform = mult( model_transform, translation( 0, .7, 0 ) );
+	stem_stack.push(model_transform);
+		model_transform = mult( model_transform, scale( 1, 1.4, 1) );
+		this.m_cube.draw(this.graphicsState, model_transform, stem);
+	model_transform = stem_stack.pop();
+	model_transform = mult( model_transform, translation( 0, .7, 0 ) );
 
 	return model_transform;
 }
