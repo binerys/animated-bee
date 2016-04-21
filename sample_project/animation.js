@@ -21,6 +21,9 @@ function CURRENT_BASIS_IS_WORTH_SHOWING(self, model_transform) { self.m_axis.dra
 var texture_filenames_to_load = [ "stars.png", "text.png", "earth.gif", "stem.png", "dandelion.jpg", "grass.jpg"];
 var purplePlastic = new Material( vec4( .9,.5,.9,1 ), .2, .5, .8, 40 ), // Omit the final (string) parameter if you want no texture
 greyPlastic = new Material( vec4( .5,.5,.5,1 ), .2, .8, .5, 20 ),
+lightgreyPlastic = new Material( vec4(0.867, 0.867, 0.867,1 ), .2, .8, .5, 20 ),
+yellowPlastic = new Material( vec4(1.0, 1.0, 0.2, 1), .2, .5, .5, 20 ),
+
 stem = new Material( vec4( .5,.5,.5,1 ), .5, 1, 1, 40, "stem.png" ),
 dandelion = new Material( vec4( .5,.5,.5,1 ), .5, 1, 1, 40, "dandelion.jpg" ),
 grass = new Material( vec4( .5,.5,.5,1 ), .5, 1, 1, 40, "grass.jpg" ),
@@ -133,7 +136,6 @@ Animation.prototype.display = function(time)
 		STATIC GROUND
 		**********************************/		
 		var stack = [];
-		// model_transform = mult( model_transform, rotation(-90, 0, 1, 0) ); // MAKE EVERYTHING ALONG THE X-AXIS
 		stack.push(model_transform); 
 		model_transform = this.draw_ground(model_transform);
 		model_transform = stack.pop();
@@ -156,7 +158,7 @@ Animation.prototype.display = function(time)
 		/**********************************
 		BEE BODY
 		**********************************/
-		// model_transform = mult( model_transform, rotation(this.graphicsState.animation_time/20, 0, 1, 0) );
+		model_transform = mult( model_transform, rotation(this.graphicsState.animation_time/20, 0, 1, 0) );
 		model_transform = mult( model_transform, translation(0, 3*Math.sin(this.graphicsState.animation_time/500), 0) );
 		model_transform = mult( model_transform, translation(0,2,10));	
 		stack.push(model_transform); 
@@ -168,32 +170,20 @@ Animation.prototype.display = function(time)
 		BEE WINGS + LEGS
 		**********************************/
 		
-		model_transform = mult( model_transform, translation(-2.5,1.096,0));	
-		stack.push(model_transform); // MIDDLE OF BEE: Will serve as basis for legs + wings
-
-		
+		model_transform = mult( model_transform, translation(-2.5,1.096,0));
+		var bee_mid = model_transform;	// MIDDLE OF BEE: Will serve as basis for legs + wings
+			
 		for(i=0; i<2; i++)
 		{
+			// DRAW WING:
 			this.draw_wing(model_transform,i);
-			model_transform = stack.pop();
-			stack.push(model_transform);
+			model_transform = bee_mid;
+
+			this.draw_legs(model_transform,i);
+			model_transform = bee_mid;
+				
 		}
 		
-		
-		// INITIAL LEG POINT
-		model_transform = mult( model_transform, translation(0,-2.30,.85));	// Move hinge point
-		model_transform = mult( model_transform, rotation( 10 * Math.sin(this.graphicsState.animation_time / 500) + 80, 1, 0, 0) );
-		stack.push(model_transform);	
-
-
-		
-		for(i=-1.2; i<=1.2; i+=1.2)
-		{
-			this.draw_leg(model_transform,i);
-		}
-		
-
-
 		
 	}	
 
@@ -224,7 +214,7 @@ Animation.prototype.draw_bee_body = function( model_transform )
 {
 	var body_stack = [];
 	// Bee Head
-	this.m_sphere.draw(this.graphicsState,model_transform,purplePlastic);
+	this.m_sphere.draw(this.graphicsState,model_transform,yellowPlastic);
 
 	// Bee Upper Body
 	model_transform = mult( model_transform, translation(-2.5,0,0));
@@ -237,7 +227,7 @@ Animation.prototype.draw_bee_body = function( model_transform )
 	model_transform = mult( model_transform, translation(-4.4,0,0));
 	body_stack.push(model_transform);
 		model_transform = mult(model_transform, scale(3,1.4,1.4));
-		this.m_sphere.draw(this.graphicsState,model_transform,dandelion);
+		this.m_sphere.draw(this.graphicsState,model_transform,yellowPlastic);
 	model_transform = body_stack.pop();
 
 	return model_transform; 
@@ -262,7 +252,7 @@ Animation.prototype.draw_wing = function(model_transform,dir)
 	wing_stack.push(model_transform);
 		//model_transform = mult( model_transform, rotation(-90, 0, 0, 1) ); // Rotate along z-axis
 		model_transform = mult( model_transform, scale(2 ,.1 ,4 ) );	
-		this.m_cube.draw( this.graphicsState, model_transform, purplePlastic);				
+		this.m_cube.draw( this.graphicsState, model_transform, lightgreyPlastic);				
 	model_transform = wing_stack.pop();	
 }
 
@@ -276,7 +266,7 @@ Animation.prototype.draw_leg = function(model_transform,xpos)
 	leg_stack.push(model_transform);
 		model_transform = mult( model_transform, rotation(-90, 1, 0, 0) ); // Rotate along y-axis
 		model_transform = mult( model_transform, scale(.6 ,2 ,.7 ) );	
-		this.m_cube.draw( this.graphicsState, model_transform, dandelion);				
+		this.m_cube.draw( this.graphicsState, model_transform, greyPlastic);				
 	model_transform = leg_stack.pop();
 	
 	// LOWER LEG
@@ -293,6 +283,20 @@ Animation.prototype.draw_leg = function(model_transform,xpos)
 		model_transform = mult( model_transform, scale(.6 ,2 ,.7 ) );	
 		this.m_cube.draw( this.graphicsState, model_transform, greyPlastic);				
 	model_transform = leg_stack.pop();
+}
+
+Animation.prototype.draw_legs = function(model_transform,dir)
+{
+	// DRAW LEGS:
+	model_transform = mult( model_transform, rotation(dir*180, 0, 1, 0) ); // Rotate along y-axis	depending on direction	
+	model_transform = mult( model_transform, translation(0,-2.30,.85));	// Move hinge point
+	model_transform = mult( model_transform, rotation( 10 * Math.sin(this.graphicsState.animation_time / 500) + 80, 1, 0, 0) );
+
+	var j;
+	for(j=-1.2; j<=1.2; j+=1.2)
+	{
+		this.draw_leg(model_transform,j);
+	}	
 }
 
 
