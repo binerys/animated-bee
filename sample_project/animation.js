@@ -156,7 +156,7 @@ Animation.prototype.display = function(time)
 		/**********************************
 		BEE BODY
 		**********************************/
-		model_transform = mult( model_transform, rotation(this.graphicsState.animation_time/20, 0, 1, 0) );
+		// model_transform = mult( model_transform, rotation(this.graphicsState.animation_time/20, 0, 1, 0) );
 		model_transform = mult( model_transform, translation(0, 3*Math.sin(this.graphicsState.animation_time/500), 0) );
 		model_transform = mult( model_transform, translation(0,0,10));	
 		stack.push(model_transform); 
@@ -171,7 +171,7 @@ Animation.prototype.display = function(time)
 		model_transform = mult( model_transform, translation(-2.5,1.096,0));	
 		stack.push(model_transform); // MIDDLE OF BEE: Will serve as basis for legs + wings
 
-	
+		
 		for(i=0; i<2; i++)
 		{
 			this.draw_wing(model_transform,i);
@@ -180,11 +180,35 @@ Animation.prototype.display = function(time)
 		}
 		
 		
+		// UPPER LEG
+		model_transform = mult( model_transform, translation(0,-2.30,.85));	// Move hinge point
+		model_transform = mult( model_transform, rotation( 10 * Math.sin(this.graphicsState.animation_time / 500) + 80, 1, 0, 0) );
 		
+		
+		model_transform = mult( model_transform, translation(0,.34,0.8)); // Move draw point	
+		
+		var leg_stack = [];
+		leg_stack.push(model_transform);
+			model_transform = mult( model_transform, rotation(-90, 1, 0, 0) ); // Rotate along y-axis
+			model_transform = mult( model_transform, scale(.6 ,2 ,.7 ) );	
+			this.m_cube.draw( this.graphicsState, model_transform, dandelion);				
+		model_transform = leg_stack.pop();
+		
+		// LOWER LEG
+
+		// Move to bottom hinge point of upper leg
+		model_transform = mult( model_transform, translation(0,-.32,1.25));	// Move hinge point
+		model_transform = mult( model_transform, rotation( 10 * Math.sin(this.graphicsState.animation_time / 500) + 10, 1, 0, 0) );
 		CURRENT_BASIS_IS_WORTH_SHOWING(this, model_transform);
+
+		model_transform = mult( model_transform, translation(0,.3,.76)); // Move draw point	
+
+		leg_stack.push(model_transform);
+			model_transform = mult( model_transform, rotation(-90, 1, 0, 0) ); // Rotate along y-axis
+			model_transform = mult( model_transform, scale(.6 ,2 ,.7 ) );	
+			this.m_cube.draw( this.graphicsState, model_transform, greyPlastic);				
+		model_transform = leg_stack.pop();
 		
-
-
 
 	}	
 
@@ -241,13 +265,14 @@ Animation.prototype.draw_wing = function(model_transform,dir)
 
 	// Move wing to position
 	var wing_stack = [];
-	model_transform = mult( model_transform, translation(0,-0.19,(dir ? -1 : 1)*1.1));	
+	model_transform = mult( model_transform, translation(0,-0.19,(dir ? -1 : 1)*.9));	
 
 	model_transform = mult( model_transform, rotation((dir)*180, 0, 1, 0) ); // Rotate along y-axis
 		model_transform = mult( model_transform, rotation( 35 * Math.sin(this.graphicsState.animation_time / 500) + 20, 1, 0, 0) );
-		
+
 	
-	model_transform = mult( model_transform, translation(0,0,1.76));	
+	
+	model_transform = mult( model_transform, translation(0,0,1.96));	
 		
 	wing_stack.push(model_transform);
 		//model_transform = mult( model_transform, rotation(-90, 0, 0, 1) ); // Rotate along z-axis
