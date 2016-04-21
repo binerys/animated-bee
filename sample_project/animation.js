@@ -156,7 +156,7 @@ Animation.prototype.display = function(time)
 		/**********************************
 		BEE BODY
 		**********************************/
-		//model_transform = mult( model_transform, rotation(this.graphicsState.animation_time/20, 0, 1, 0) );
+		model_transform = mult( model_transform, rotation(this.graphicsState.animation_time/20, 0, 1, 0) );
 		model_transform = mult( model_transform, translation(0, 3*Math.sin(this.graphicsState.animation_time/500), 0) );
 		model_transform = mult( model_transform, translation(0,0,10));	
 		stack.push(model_transform); 
@@ -172,40 +172,13 @@ Animation.prototype.display = function(time)
 		stack.push(model_transform); // MIDDLE OF BEE: Will serve as basis for legs + wings
 
 	
-		var wing_stack = [];
-		// Move wing to position
-		model_transform = mult( model_transform, translation(0,-0.19,1.1));	
-			model_transform = mult( model_transform, rotation( 35 * Math.sin(this.graphicsState.animation_time / 500) + 20, 1, 0, 0) );
-			
+		for(i=0; i<2; i++)
+		{
+			this.draw_wing(model_transform,i);
+			model_transform = stack.pop();
+			stack.push(model_transform);
+		}
 		
-		model_transform = mult( model_transform, translation(0,0,1.76));	
-			
-		wing_stack.push(model_transform);
-			model_transform = mult( model_transform, scale(2 ,.1 ,4 ) );	
-			this.m_cube.draw( this.graphicsState, model_transform, purplePlastic);				
-		model_transform = wing_stack.pop();
-	
-		// ==========================================
-		model_transform = stack.pop();
-		
-
-		
-		// Move wing to position
-		model_transform = mult( model_transform, translation(0,-0.19,-1.1));	
-
-		model_transform = mult( model_transform, rotation(180, 0, 1, 0) ); // Rotate along y-axis
-			model_transform = mult( model_transform, rotation( 35 * Math.sin(this.graphicsState.animation_time / 500) + 20, 1, 0, 0) );
-			
-		
-		model_transform = mult( model_transform, translation(0,0,1.76));	
-			
-		wing_stack.push(model_transform);
-			//model_transform = mult( model_transform, rotation(-90, 0, 0, 1) ); // Rotate along z-axis
-			model_transform = mult( model_transform, scale(2 ,.1 ,4 ) );	
-			this.m_cube.draw( this.graphicsState, model_transform, purplePlastic);				
-		model_transform = wing_stack.pop();
-		
-		//CURRENT_BASIS_IS_WORTH_SHOWING(this, model_transform);
 		
 		
 		CURRENT_BASIS_IS_WORTH_SHOWING(this, model_transform);
@@ -259,6 +232,30 @@ Animation.prototype.draw_bee_body = function( model_transform )
 	model_transform = body_stack.pop();
 
 	return model_transform; 
+}
+
+Animation.prototype.draw_wing = function(model_transform,dir)
+{
+	// DIR - 0: closer wing along z-axis
+	//	   - 1: further wing along z-axis
+
+	// Move wing to position
+	var wing_stack = [];
+	model_transform = mult( model_transform, translation(0,-0.19,(dir ? -1 : 1)*1.1));	
+
+	model_transform = mult( model_transform, rotation((dir)*180, 0, 1, 0) ); // Rotate along y-axis
+		model_transform = mult( model_transform, rotation( 35 * Math.sin(this.graphicsState.animation_time / 500) + 20, 1, 0, 0) );
+		
+	
+	model_transform = mult( model_transform, translation(0,0,1.76));	
+		
+	wing_stack.push(model_transform);
+		//model_transform = mult( model_transform, rotation(-90, 0, 0, 1) ); // Rotate along z-axis
+		model_transform = mult( model_transform, scale(2 ,.1 ,4 ) );	
+		this.m_cube.draw( this.graphicsState, model_transform, purplePlastic);				
+	model_transform = wing_stack.pop();
+		
+
 }
 
 Animation.prototype.update_strings = function( debug_screen_strings )		// Strings this particular class contributes to the UI
