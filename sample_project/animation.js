@@ -158,7 +158,7 @@ Animation.prototype.display = function(time)
 		**********************************/
 		// model_transform = mult( model_transform, rotation(this.graphicsState.animation_time/20, 0, 1, 0) );
 		model_transform = mult( model_transform, translation(0, 3*Math.sin(this.graphicsState.animation_time/500), 0) );
-		model_transform = mult( model_transform, translation(0,0,10));	
+		model_transform = mult( model_transform, translation(0,2,10));	
 		stack.push(model_transform); 
 			model_transform = this.draw_bee_body(model_transform);
 		model_transform = stack.pop();
@@ -197,11 +197,11 @@ Animation.prototype.display = function(time)
 		// LOWER LEG
 
 		// Move to bottom hinge point of upper leg
-		model_transform = mult( model_transform, translation(0,-.32,1.25));	// Move hinge point
+		model_transform = mult( model_transform, translation(0,-.34,1.25));	// Move hinge point
 		model_transform = mult( model_transform, rotation( 10 * Math.sin(this.graphicsState.animation_time / 500) + 10, 1, 0, 0) );
-		CURRENT_BASIS_IS_WORTH_SHOWING(this, model_transform);
+		//CURRENT_BASIS_IS_WORTH_SHOWING(this, model_transform);
 
-		model_transform = mult( model_transform, translation(0,.3,.76)); // Move draw point	
+		model_transform = mult( model_transform, translation(0,.33,.76)); // Move draw point	
 
 		leg_stack.push(model_transform);
 			model_transform = mult( model_transform, rotation(-90, 1, 0, 0) ); // Rotate along y-axis
