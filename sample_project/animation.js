@@ -156,56 +156,59 @@ Animation.prototype.display = function(time)
 		/**********************************
 		BEE BODY
 		**********************************/
-		model_transform = mult( model_transform, rotation(-(this.graphicsState.animation_time/20), 0, 1, 0) );
+		//model_transform = mult( model_transform, rotation(this.graphicsState.animation_time/20, 0, 1, 0) );
 		model_transform = mult( model_transform, translation(0, 3*Math.sin(this.graphicsState.animation_time/500), 0) );
-		model_transform = mult( model_transform, translation(10,0,0));	
+		model_transform = mult( model_transform, translation(0,0,10));	
 		stack.push(model_transform); 
 			model_transform = this.draw_bee_body(model_transform);
 		model_transform = stack.pop();
 		
-
+		
 		/**********************************
 		BEE WINGS + LEGS
 		**********************************/
 		
-		model_transform = mult( model_transform, translation(0,1.096,-2.5));	
+		model_transform = mult( model_transform, translation(-2.5,1.096,0));	
 		stack.push(model_transform); // MIDDLE OF BEE: Will serve as basis for legs + wings
 
 	
 		var wing_stack = [];
 		// Move wing to position
-		model_transform = mult( model_transform, translation(1.2,-0.19,0));	
-			model_transform = mult( model_transform, rotation( 35 * Math.sin(this.graphicsState.animation_time / 500) + 20, 0, 0, 1) );
-		model_transform = mult( model_transform, translation(1.76,0,0));	
+		model_transform = mult( model_transform, translation(0,-0.19,1.1));	
+			model_transform = mult( model_transform, rotation( 35 * Math.sin(this.graphicsState.animation_time / 500) + 20, 1, 0, 0) );
+			
+		
+		model_transform = mult( model_transform, translation(0,0,1.76));	
 			
 		wing_stack.push(model_transform);
-			model_transform = mult( model_transform, rotation(90, 0, 0, 1) ); // Rotate along z-axis
-			model_transform = mult( model_transform, scale( .1, 4, 2) );	
+			model_transform = mult( model_transform, scale(2 ,.1 ,4 ) );	
 			this.m_cube.draw( this.graphicsState, model_transform, purplePlastic);				
 		model_transform = wing_stack.pop();
-		
+	
 		// ==========================================
 		model_transform = stack.pop();
 		
 
 		
 		// Move wing to position
-		model_transform = mult( model_transform, translation(-1.2,-0.19,0));	
-		model_transform = mult( model_transform, rotation(-180, 0, 1, 0) ); // Rotate along z-axis
-			model_transform = mult( model_transform, rotation( 35 * Math.sin(this.graphicsState.animation_time / 500) + 20, 0, 0, 1) );
+		model_transform = mult( model_transform, translation(0,-0.19,-1.1));	
+
+		model_transform = mult( model_transform, rotation(180, 0, 1, 0) ); // Rotate along y-axis
+			model_transform = mult( model_transform, rotation( 35 * Math.sin(this.graphicsState.animation_time / 500) + 20, 1, 0, 0) );
 			
 		
-		model_transform = mult( model_transform, translation(1.76,0,0));	
+		model_transform = mult( model_transform, translation(0,0,1.76));	
 			
 		wing_stack.push(model_transform);
-			model_transform = mult( model_transform, rotation(-90, 0, 0, 1) ); // Rotate along z-axis
-			model_transform = mult( model_transform, scale( .1, 4, 2) );	
+			//model_transform = mult( model_transform, rotation(-90, 0, 0, 1) ); // Rotate along z-axis
+			model_transform = mult( model_transform, scale(2 ,.1 ,4 ) );	
 			this.m_cube.draw( this.graphicsState, model_transform, purplePlastic);				
 		model_transform = wing_stack.pop();
 		
 		//CURRENT_BASIS_IS_WORTH_SHOWING(this, model_transform);
 		
 		
+		CURRENT_BASIS_IS_WORTH_SHOWING(this, model_transform);
 		
 
 
@@ -242,16 +245,16 @@ Animation.prototype.draw_bee_body = function( model_transform )
 	this.m_sphere.draw(this.graphicsState,model_transform,purplePlastic);
 
 	// Bee Upper Body
-	model_transform = mult( model_transform, translation(0,0,-2.5));
+	model_transform = mult( model_transform, translation(-2.5,0,0));
 	body_stack.push(model_transform);
-		model_transform = mult( model_transform, scale( 2, 1.7, 3) );
+		model_transform = mult( model_transform, scale(3 ,2, 1.7) );
 		this.m_cube.draw(this.graphicsState,model_transform,greyPlastic);		
 	model_transform = body_stack.pop();
 	
 	// Bee Lower Body 
-	model_transform = mult( model_transform, translation(0,0,-4.4));
+	model_transform = mult( model_transform, translation(-4.4,0,0));
 	body_stack.push(model_transform);
-		model_transform = mult(model_transform, scale(1.4,1.4,3));
+		model_transform = mult(model_transform, scale(3,1.4,1.4));
 		this.m_sphere.draw(this.graphicsState,model_transform,dandelion);
 	model_transform = body_stack.pop();
 
