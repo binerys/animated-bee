@@ -14,7 +14,7 @@ var canvas, canvas_size, gl = null, g_addrs,
 function CURRENT_BASIS_IS_WORTH_SHOWING(self, model_transform) { self.m_axis.draw( self.basis_id++, self.graphicsState, model_transform, new Material( vec4( .8,.3,.8,1 ), .5, 1, 1, 40, "" ) ); }
 
 // *******************************************************
-// 	T E X T U R E S
+// 	M A T E R I A L S
 // *******************************************************
 // IMPORTANT -- In the line below, add the filenames of any new images you want to include for textures!
 
@@ -125,10 +125,6 @@ Animation.prototype.display = function(time)
 		
 		var model_transform = mat4();
 		
-		// Materials: Declare new ones as needed in every function.
-		// 1st parameter:  Color (4 floats in RGBA format), 2nd: Ambient light, 3rd: Diffuse reflectivity, 4th: Specular reflectivity, 5th: Smoothness exponent, 6th: Texture image.
-		
-			
 		/**********************************
 		Start coding here!!!!
 		**********************************/
@@ -137,6 +133,7 @@ Animation.prototype.display = function(time)
 		STATIC GROUND
 		**********************************/		
 		var stack = [];
+		// model_transform = mult( model_transform, rotation(-90, 0, 1, 0) ); // MAKE EVERYTHING ALONG THE X-AXIS
 		stack.push(model_transform); 
 		model_transform = this.draw_ground(model_transform);
 		model_transform = stack.pop();
@@ -157,11 +154,61 @@ Animation.prototype.display = function(time)
 		model_transform = stack.pop();		
 
 		/**********************************
-		BEE
-		**********************************/	
+		BEE BODY
+		**********************************/
+		model_transform = mult( model_transform, rotation(-(this.graphicsState.animation_time/20), 0, 1, 0) );
+		model_transform = mult( model_transform, translation(0, 3*Math.sin(this.graphicsState.animation_time/500), 0) );
+		model_transform = mult( model_transform, translation(10,0,0));	
 		stack.push(model_transform); 
+			model_transform = this.draw_bee_body(model_transform);
+		model_transform = stack.pop();
+		
 
-		CURRENT_BASIS_IS_WORTH_SHOWING(this, model_transform);
+		/**********************************
+		BEE WINGS + LEGS
+		**********************************/
+		
+		model_transform = mult( model_transform, translation(0,1.096,-2.5));	
+		stack.push(model_transform); // MIDDLE OF BEE: Will serve as basis for legs + wings
+
+	
+		var wing_stack = [];
+		// Move wing to position
+		model_transform = mult( model_transform, translation(1.2,-0.19,0));	
+			model_transform = mult( model_transform, rotation( 35 * Math.sin(this.graphicsState.animation_time / 500) + 20, 0, 0, 1) );
+		model_transform = mult( model_transform, translation(1.76,0,0));	
+			
+		wing_stack.push(model_transform);
+			model_transform = mult( model_transform, rotation(90, 0, 0, 1) ); // Rotate along z-axis
+			model_transform = mult( model_transform, scale( .1, 4, 2) );	
+			this.m_cube.draw( this.graphicsState, model_transform, purplePlastic);				
+		model_transform = wing_stack.pop();
+		
+		// ==========================================
+		model_transform = stack.pop();
+		
+
+		
+		// Move wing to position
+		model_transform = mult( model_transform, translation(-1.2,-0.19,0));	
+		model_transform = mult( model_transform, rotation(-180, 0, 1, 0) ); // Rotate along z-axis
+			model_transform = mult( model_transform, rotation( 35 * Math.sin(this.graphicsState.animation_time / 500) + 20, 0, 0, 1) );
+			
+		
+		model_transform = mult( model_transform, translation(1.76,0,0));	
+			
+		wing_stack.push(model_transform);
+			model_transform = mult( model_transform, rotation(-90, 0, 0, 1) ); // Rotate along z-axis
+			model_transform = mult( model_transform, scale( .1, 4, 2) );	
+			this.m_cube.draw( this.graphicsState, model_transform, purplePlastic);				
+		model_transform = wing_stack.pop();
+		
+		//CURRENT_BASIS_IS_WORTH_SHOWING(this, model_transform);
+		
+		
+		
+
+
 
 	}	
 
@@ -188,6 +235,29 @@ Animation.prototype.draw_stem = function( model_transform )
 
 	return model_transform;
 }
+Animation.prototype.draw_bee_body = function( model_transform )
+{
+	var body_stack = [];
+	// Bee Head
+	this.m_sphere.draw(this.graphicsState,model_transform,purplePlastic);
+
+	// Bee Upper Body
+	model_transform = mult( model_transform, translation(0,0,-2.5));
+	body_stack.push(model_transform);
+		model_transform = mult( model_transform, scale( 2, 1.7, 3) );
+		this.m_cube.draw(this.graphicsState,model_transform,greyPlastic);		
+	model_transform = body_stack.pop();
+	
+	// Bee Lower Body 
+	model_transform = mult( model_transform, translation(0,0,-4.4));
+	body_stack.push(model_transform);
+		model_transform = mult(model_transform, scale(1.4,1.4,3));
+		this.m_sphere.draw(this.graphicsState,model_transform,dandelion);
+	model_transform = body_stack.pop();
+
+	return model_transform; 
+}
+
 Animation.prototype.update_strings = function( debug_screen_strings )		// Strings this particular class contributes to the UI
 {
 	debug_screen_strings.string_map["time"] = "Animation Time: " + this.graphicsState.animation_time/1000 + "s";
