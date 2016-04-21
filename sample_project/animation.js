@@ -180,36 +180,21 @@ Animation.prototype.display = function(time)
 		}
 		
 		
-		// UPPER LEG
+		// INITIAL LEG POINT
 		model_transform = mult( model_transform, translation(0,-2.30,.85));	// Move hinge point
 		model_transform = mult( model_transform, rotation( 10 * Math.sin(this.graphicsState.animation_time / 500) + 80, 1, 0, 0) );
-		
-		
-		model_transform = mult( model_transform, translation(0,.34,0.8)); // Move draw point	
-		
-		var leg_stack = [];
-		leg_stack.push(model_transform);
-			model_transform = mult( model_transform, rotation(-90, 1, 0, 0) ); // Rotate along y-axis
-			model_transform = mult( model_transform, scale(.6 ,2 ,.7 ) );	
-			this.m_cube.draw( this.graphicsState, model_transform, dandelion);				
-		model_transform = leg_stack.pop();
-		
-		// LOWER LEG
+		stack.push(model_transform);	
 
-		// Move to bottom hinge point of upper leg
-		model_transform = mult( model_transform, translation(0,-.34,1.25));	// Move hinge point
-		model_transform = mult( model_transform, rotation( 10 * Math.sin(this.graphicsState.animation_time / 500) + 10, 1, 0, 0) );
-		//CURRENT_BASIS_IS_WORTH_SHOWING(this, model_transform);
 
-		model_transform = mult( model_transform, translation(0,.33,.76)); // Move draw point	
-
-		leg_stack.push(model_transform);
-			model_transform = mult( model_transform, rotation(-90, 1, 0, 0) ); // Rotate along y-axis
-			model_transform = mult( model_transform, scale(.6 ,2 ,.7 ) );	
-			this.m_cube.draw( this.graphicsState, model_transform, greyPlastic);				
-		model_transform = leg_stack.pop();
+		
+		for(i=-1.2; i<=1.2; i+=1.2)
+		{
+			this.draw_leg(model_transform,i);
+		}
 		
 
+
+		
 	}	
 
 
@@ -278,10 +263,38 @@ Animation.prototype.draw_wing = function(model_transform,dir)
 		//model_transform = mult( model_transform, rotation(-90, 0, 0, 1) ); // Rotate along z-axis
 		model_transform = mult( model_transform, scale(2 ,.1 ,4 ) );	
 		this.m_cube.draw( this.graphicsState, model_transform, purplePlastic);				
-	model_transform = wing_stack.pop();
-		
-
+	model_transform = wing_stack.pop();	
 }
+
+
+Animation.prototype.draw_leg = function(model_transform,xpos)
+{
+	var leg_stack = [];
+	model_transform = mult( model_transform, translation(xpos,0,0));
+	model_transform = mult( model_transform, translation(0,.34,0.8)); // Move draw point
+	
+	leg_stack.push(model_transform);
+		model_transform = mult( model_transform, rotation(-90, 1, 0, 0) ); // Rotate along y-axis
+		model_transform = mult( model_transform, scale(.6 ,2 ,.7 ) );	
+		this.m_cube.draw( this.graphicsState, model_transform, dandelion);				
+	model_transform = leg_stack.pop();
+	
+	// LOWER LEG
+
+	// Move to bottom hinge point of upper leg
+	model_transform = mult( model_transform, translation(0,-.34,1.25));	// Move hinge point
+	model_transform = mult( model_transform, rotation( 10 * Math.sin(this.graphicsState.animation_time / 500) + 10, 1, 0, 0) );
+	
+
+	model_transform = mult( model_transform, translation(0,.33,.76)); // Move draw point	
+
+	leg_stack.push(model_transform);
+		model_transform = mult( model_transform, rotation(-90, 1, 0, 0) ); // Rotate along y-axis
+		model_transform = mult( model_transform, scale(.6 ,2 ,.7 ) );	
+		this.m_cube.draw( this.graphicsState, model_transform, greyPlastic);				
+	model_transform = leg_stack.pop();
+}
+
 
 Animation.prototype.update_strings = function( debug_screen_strings )		// Strings this particular class contributes to the UI
 {
